@@ -21,6 +21,26 @@ module alu#(
                     ALUResult = SrcA + SrcB;
             4'b1000:        // Equal
                     ALUResult = (SrcA == SrcB) ? 1 : 0;
+            4'b0011:        // bne
+                    ALUResult = (SrcA != SrcB) ? 1 : 0; 
+            4'b0100:        // blt
+                    ALUResult = (SrcA < SrcB) ? 1 : 0;
+            4'b0101:        // bge
+                   ALUResult = (SrcA >= SrcB) ? 1 : 0;
+            4'b0110:        // slt e slti
+                    ALUResult = (SrcA < SrcB) ? 1 : 0;
+            4'b0111:        // or
+                    ALUResult = SrcA | SrcB;
+            4'b1000:        // xor
+                    ALUResult = SrcA ^ SrcB;
+            4'b1001:        // sub 
+                    ALUResult = SrcA - SrcB;
+            4'b1010:        // srli
+                    ALUResult = SrcA >> SrcB;
+            4'b1011:        // slli
+                    ALUResult = SrcA << SrcB; 
+            4'b1100:        // srai
+                ALUResult = SrcA >>> SrcB[4:0];
             default:
                     ALUResult = 0;
             endcase
