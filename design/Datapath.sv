@@ -13,11 +13,14 @@ module Datapath #(
     input  logic                 clk,
     reset,
     RegWrite,
+    jal, // adicionado jal
     MemtoReg,  // Register file writing enable   // Memory or ALU MUX
     ALUsrc,
     MemWrite,  // Register file or Immediate MUX // Memroy Writing Enable
     MemRead,  // Memroy Reading Enable
     Branch,  // Branch Enable
+    jalr, // adicionado jalr
+    halt, // adicionado halt
     input  logic [          1:0] ALUOp,
     input  logic [ALU_CC_W -1:0] ALU_CC,         // ALU Control Code ( input of the ALU )
     output logic [          6:0] opcode,
@@ -45,6 +48,9 @@ module Datapath #(
   logic [DATA_W-1:0] SrcB, ALUResult;
   logic [DATA_W-1:0] ExtImm, BrImm, Old_PC_Four, BrPC;
   logic [DATA_W-1:0] WrmuxSrc;
+    
+  // adicionar temp 
+    
   logic PcSel;  // mux select / flush signal
   logic [1:0] FAmuxSel;
   logic [1:0] FBmuxSel;
@@ -135,12 +141,15 @@ module Datapath #(
     if ((reset) || (Reg_Stall) || (PcSel))   // initialization or flush or generate a NOP if hazard
         begin
       B.ALUSrc <= 0;
+      B.jal <=0; // adicionando jal
       B.MemtoReg <= 0;
       B.RegWrite <= 0;
       B.MemRead <= 0;
       B.MemWrite <= 0;
       B.ALUOp <= 0;
       B.Branch <= 0;
+      B.halt <= 0; // adicionando halt
+      B.jalr <=0; // adicionando jalr
       B.Curr_Pc <= 0;
       B.RD_One <= 0;
       B.RD_Two <= 0;
@@ -153,12 +162,15 @@ module Datapath #(
       B.Curr_Instr <= A.Curr_Instr;  //debug tmp
     end else begin
       B.ALUSrc <= ALUsrc;
+      B.jal <= jal; // adicionando jal
       B.MemtoReg <= MemtoReg;
       B.RegWrite <= RegWrite;
       B.MemRead <= MemRead;
       B.MemWrite <= MemWrite;
       B.ALUOp <= ALUOp;
       B.Branch <= Branch;
+      B.halt <= halt; // adicionando halt
+      B.jalr <= jalr; // adicionando jalr
       B.Curr_Pc <= A.Curr_Pc;
       B.RD_One <= Reg1;
       B.RD_Two <= Reg2;
@@ -221,6 +233,9 @@ module Datapath #(
       B.Curr_Pc,
       B.ImmG,
       B.Branch,
+      B.jal, // adicionando jal
+      B.jalr, // adicionando jalr
+      B.halt  // adicionando halt 
       ALUResult,
       BrImm,
       Old_PC_Four,
@@ -233,6 +248,7 @@ module Datapath #(
     if (reset)   // initialization
         begin
       C.RegWrite <= 0;
+      C.jal <= 0; // adicionando jal
       C.MemtoReg <= 0;
       C.MemRead <= 0;
       C.MemWrite <= 0;
@@ -246,6 +262,7 @@ module Datapath #(
       C.func7 <= 0;
     end else begin
       C.RegWrite <= B.RegWrite;
+      C.jal <= B.jal; // adicionando jal
       C.MemtoReg <= B.MemtoReg;
       C.MemRead <= B.MemRead;
       C.MemWrite <= B.MemWrite;
@@ -283,6 +300,7 @@ module Datapath #(
     if (reset)   // initialization
         begin
       D.RegWrite <= 0;
+      D.jal <= 0; // adicionando jal
       D.MemtoReg <= 0;
       D.Pc_Imm <= 0;
       D.Pc_Four <= 0;
@@ -292,6 +310,7 @@ module Datapath #(
       D.rd <= 0;
     end else begin
       D.RegWrite <= C.RegWrite;
+      D.jal <= C.jal; // adicionando jal
       D.MemtoReg <= C.MemtoReg;
       D.Pc_Imm <= C.Pc_Imm;
       D.Pc_Four <= C.Pc_Four;
@@ -310,6 +329,8 @@ module Datapath #(
       D.MemtoReg,
       WrmuxSrc
   );
+
+    //adicionar um mux:
 
   assign WB_Data = WrmuxSrc;
 
